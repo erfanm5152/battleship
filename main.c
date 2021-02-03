@@ -1,5 +1,47 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+#define MAX_USER 100
+#define NAGHSHE 10
+
+typedef struct {
+    int size;
+    char *ebteda;
+    char *enteha;
+    struct keshti *next;
+}keshti;
+
+
+typedef struct {
+    char user[MAX_USER];
+    int seke;
+    keshti *head;
+    char naghshe[NAGHSHE][NAGHSHE];
+}player;
+player player1;
+player player2;
+void print_naghshe(char naghshe[NAGHSHE][NAGHSHE][2],int n){
+    printf("\\ ");
+    for (int i = 0; i <10 ; i++) {
+        printf("%d ",i);
+    }
+    printf("\n");
+    for (int j = 0; j <NAGHSHE ; j++) {
+        printf("%d ",j);
+        for (int i = 0; i <NAGHSHE ; i++) {
+            printf("%c",naghshe[j][i][n]);
+        }
+        printf("\n");
+    }
+}
+
+
+
+
+
+
+
 void show(){
     printf("1. Play with a Friend\n"
            "2. Play with bot\n"
@@ -7,12 +49,12 @@ void show(){
            "4. Load last game\n"
            "5. Settings\n"
            "6. Score Board\n"
-           "7. Exit");
+           "7. Exit\n");
 }//منو اصلی
 void show1(){
     printf("choose user\n"
            "\t1. choose from available users\n"
-           "\t2. new user");
+           "\t2. new user\n");
 }//منو گزینه یک
 void show11(){
     printf("2. put ships\n"
@@ -20,24 +62,77 @@ void show11(){
            "\t2. Manual\n");
 }//ادامه منو
 void show5(){
-    printf("1. ships \n"
-           "2. map size\n"
-           "3. theme (bonus)");
+    printf("\t1. ships \n"
+           "\t2. map size\n"
+           "\t3. theme (bonus)\n");
 }//منو تنطیمات
 
 
+bool search(FILE *user,char *new){
+    rewind(user);
+    player temp;
+    while (fread(&temp,sizeof(player),1,user)>0){
+        if (strcmp(temp.user,new)==0){return false;}
+    }
+    return true;
+}
 
+player chose_user(FILE *user){
+    int adad_switch;
+    player temp,natige;
+    lab1:
+    show1();
+    scanf("%d",&adad_switch);
+    switch (adad_switch) {
+        case 1:
+            rewind(user);
+            int i = 1;
+            while (fread(&temp, sizeof(player), 1, user) > 0) {
+                printf("%d)%s \n", i, temp.user);
+                i++;
+            }
+            printf("adad user mored nadzar ra entekhab konid : \n");
+            scanf("%d",&adad_switch);
+            fseek(user,(adad_switch-1)*sizeof(player),SEEK_SET);
+            fread(&natige,sizeof(player),1,user);
+            return natige;
+            break;
+        case 2:
+            printf("new user: ");
+            char new_user[MAX_USER];
+            fflush(stdin);
+            gets(new_user);
+            player new;
+            if (search(user,new_user)){
+                strcpy(new.user,new_user);
+                new.seke=0;
+                fwrite(&new,sizeof(player),1,user);
+                return new;
+            }
+            else{
+                printf("in user vojod darad.\n");
+                goto lab1;
+            }
+            break;
+    }
+}// در case 2 ساخت نقشه اضافه شود
 
+void play_with_friend(FILE*user){
+    printf("first player:\n");
+    player1=chose_user(user);
 
+}
 
 int main() {
+    FILE *fuser=fopen("user.bin","a+b");
     lab:
     show();
     int adad_switch;
     scanf("%d",&adad_switch);
     switch (adad_switch) {
         case 1:
-
+            play_with_friend(fuser);
+            break;
         case 2:
 
         case 3:
