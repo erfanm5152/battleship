@@ -10,14 +10,19 @@ void show11();
 int nobat;
 typedef struct {
     int size;
-    char *khod_kashti[MAX_SIZE_KASHTI];
+    int satr_ebteda,soton_ebteda,satr_enteha,soton_enteha;
+    char khod_kashti[MAX_SIZE_KASHTI];
     struct keshti *next;
 }keshti;
 keshti *create_keshti(int size){
     keshti *temp=(keshti*)malloc(sizeof(keshti));
     temp->size=size;
+    int i;
+    for ( i = 0; i <size ; i++) {
+        temp->khod_kashti[i]='K';
+    }
+    temp->khod_kashti[i]='\0';
     temp->next=NULL;
-    temp->khod_kashti[0] = NULL;
     return temp;
 }
 
@@ -74,7 +79,7 @@ void create_board(player *bazikon){
             bazikon->naghshe[i][j][1]='-';
         }
     }
-}
+}//ساخت صفحه خالی بازی
 
 
 
@@ -104,7 +109,7 @@ bool ghabel_jaygozari_bodan_kashtiha(player*bazikon,int ebteda_satr,int ebteda_s
         }
     }
 }
-
+//تشخیص درست بودن یا نبودن خونه های کشتی
 int minimum(int a,int b){
     if (a>b){return b;}
     else{return a;}
@@ -124,10 +129,6 @@ void gharar_dadan_w_atraf_keshtiha(player*bazikon){
     }
 }
 
-
-void vasl_kardan_keshtiha_be_linkedlist(player *bazikon,int size){
-
-}
 
 void put_ships(player*bazikon){
     show11();
@@ -152,7 +153,9 @@ void put_ships(player*bazikon){
                 getchar();
                 if (ghabel_jaygozari_bodan_kashtiha(bazikon,satr_ebteda,soton_ebteda,satr_enteha,soton_enteha,1)){
                     bazikon->naghshe[satr_ebteda][soton_ebteda][0]='K';
-                    //وصل کردن کشتی به لینک لیست اضافه شود
+                    curr->satr_ebteda=satr_ebteda;
+                    curr->soton_ebteda=soton_ebteda;
+                    curr=curr->next;
                     gharar_dadan_w_atraf_keshtiha(bazikon);
                 }
                 else{
@@ -179,6 +182,11 @@ void put_ships(player*bazikon){
                 if (ghabel_jaygozari_bodan_kashtiha(bazikon,satr_ebteda,soton_ebteda,satr_enteha,soton_enteha,2)){
                     bazikon->naghshe[satr_ebteda][soton_ebteda][0]='K';
                     bazikon->naghshe[satr_enteha][soton_enteha][0]='K';
+                    curr->satr_ebteda=satr_ebteda;
+                    curr->soton_ebteda=soton_ebteda;
+                    curr->soton_enteha=soton_enteha;
+                    curr->satr_enteha=satr_enteha;
+                    curr=curr->next;
                     // وصل کردن کشتی به لینک لیست اضافه شود
                     gharar_dadan_w_atraf_keshtiha(bazikon);
                 }
@@ -214,6 +222,11 @@ void put_ships(player*bazikon){
                             bazikon->naghshe[i][soton_enteha][0]='K';
                         }
                     }
+                    curr->satr_ebteda=satr_ebteda;
+                    curr->soton_ebteda=soton_ebteda;
+                    curr->soton_enteha=soton_enteha;
+                    curr->satr_enteha=satr_enteha;
+                    curr=curr->next;
                     gharar_dadan_w_atraf_keshtiha(bazikon);
                 }
                 else{
@@ -248,6 +261,11 @@ void put_ships(player*bazikon){
                             bazikon->naghshe[i][soton_enteha][0]='K';
                         }
                     }
+                    curr->satr_ebteda=satr_ebteda;
+                    curr->soton_ebteda=soton_ebteda;
+                    curr->soton_enteha=soton_enteha;
+                    curr->satr_enteha=satr_enteha;
+                    curr=curr->next;
                     gharar_dadan_w_atraf_keshtiha(bazikon);
                 }
                 else{
@@ -259,7 +277,7 @@ void put_ships(player*bazikon){
 
     }
 }
-
+//قراردادن کشتی ها
 
 void show(){
     printf("1. Play with a Friend\n"
@@ -354,7 +372,7 @@ void play_with_friend(FILE*user){
     sakhte_keshtiha(&player2);
     put_ships(&player2);
     print_naghshe(player2.naghshe,0);
-}
+}//برای ایجاد player1 و player2  در بازی دو نفره
 
 int main() {
     FILE *fuser=fopen("user.bin","a+b");
