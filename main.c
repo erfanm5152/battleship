@@ -87,7 +87,7 @@ bool ghabel_jaygozari_bodan_kashtiha(player*bazikon,int ebteda_satr,int ebteda_s
     if (bazikon->naghshe[enteha_satr][enteha_soton][0]=='W'||bazikon->naghshe[enteha_satr][enteha_soton][0]=='K'){return false;}
     else{
         if (ebteda_satr<0||ebteda_satr>9||ebteda_soton>9||ebteda_satr<0||enteha_satr<0||enteha_satr>9||enteha_soton<0||enteha_soton>9){return false;}
-        if ((ebteda_satr!=enteha_satr) && (enteha_soton!=ebteda_soton)){false;}
+        if ((ebteda_satr!=enteha_satr) && (enteha_soton!=ebteda_soton)){return false;}
         else{
             if (ebteda_satr==enteha_satr){
                 if ((abs(enteha_soton-ebteda_soton))==size-1){
@@ -342,8 +342,12 @@ void play_with_friend(FILE*user){
     sakhte_keshtiha(&player1);
     put_ships(&player1);
     print_naghshe(player1.naghshe,0);
-
-
+    printf("second player:\n");
+    player2=chose_user(user);
+    create_board(&player2);
+    sakhte_keshtiha(&player2);
+    put_ships(&player2);
+    print_naghshe(player2.naghshe,0);
 }
 
 int main() {
