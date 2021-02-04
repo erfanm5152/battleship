@@ -9,14 +9,19 @@
 void show11();
 int nobat;
 typedef struct {
+    int satr,soton;
+}mokhtasat;
+typedef struct {
     int size;
-    int satr_ebteda,soton_ebteda,satr_enteha,soton_enteha;
+    mokhtasat k[MAX_SIZE_KASHTI];
     char khod_kashti[MAX_SIZE_KASHTI];
     struct keshti *next;
 }keshti;
 keshti *create_keshti(int size){
     keshti *temp=(keshti*)malloc(sizeof(keshti));
     temp->size=size;
+    temp->k->satr=-1;
+    temp->k->soton=-1;
     int i;
     for ( i = 0; i <size ; i++) {
         temp->khod_kashti[i]='K';
@@ -153,8 +158,8 @@ void put_ships(player*bazikon){
                 getchar();
                 if (ghabel_jaygozari_bodan_kashtiha(bazikon,satr_ebteda,soton_ebteda,satr_enteha,soton_enteha,1)){
                     bazikon->naghshe[satr_ebteda][soton_ebteda][0]='K';
-                    curr->satr_ebteda=satr_ebteda;
-                    curr->soton_ebteda=soton_ebteda;
+                    curr->k[0].satr=satr_ebteda;
+                    curr->k[0].soton=soton_ebteda;
                     curr=curr->next;
                     gharar_dadan_w_atraf_keshtiha(bazikon);
                 }
@@ -182,10 +187,10 @@ void put_ships(player*bazikon){
                 if (ghabel_jaygozari_bodan_kashtiha(bazikon,satr_ebteda,soton_ebteda,satr_enteha,soton_enteha,2)){
                     bazikon->naghshe[satr_ebteda][soton_ebteda][0]='K';
                     bazikon->naghshe[satr_enteha][soton_enteha][0]='K';
-                    curr->satr_ebteda=satr_ebteda;
-                    curr->soton_ebteda=soton_ebteda;
-                    curr->soton_enteha=soton_enteha;
-                    curr->satr_enteha=satr_enteha;
+                    curr->k[0].satr=satr_ebteda;
+                    curr->k[0].soton=soton_ebteda;
+                    curr->k[1].soton=soton_enteha;
+                    curr->k[1].satr=satr_enteha;
                     curr=curr->next;
                     // وصل کردن کشتی به لینک لیست اضافه شود
                     gharar_dadan_w_atraf_keshtiha(bazikon);
@@ -212,20 +217,21 @@ void put_ships(player*bazikon){
                 scanf("%d",&soton_enteha);
                 getchar();
                 if (ghabel_jaygozari_bodan_kashtiha(bazikon,satr_ebteda,soton_ebteda,satr_enteha,soton_enteha,3)){
+                    int j=0;
                     if (satr_enteha == satr_ebteda){
-                        for (int i = minimum(soton_ebteda,soton_enteha); i <minimum(soton_ebteda,soton_enteha)+3 ; i++) {
+                        for (int i = minimum(soton_ebteda,soton_enteha); i <minimum(soton_ebteda,soton_enteha)+3 ; j++,i++) {
                             bazikon->naghshe[satr_ebteda][i][0]='K';
+                            curr->k[j].satr=satr_ebteda;
+                            curr->k[j].soton=i;
                         }
                     }
                     else{
-                        for (int i = minimum(satr_ebteda,satr_enteha); i <minimum(satr_ebteda,satr_enteha)+3 ; i++) {
+                        for (int i = minimum(satr_ebteda,satr_enteha); i <minimum(satr_ebteda,satr_enteha)+3 ; j++,i++) {
                             bazikon->naghshe[i][soton_enteha][0]='K';
+                            curr->k[j].satr=i;
+                            curr->k[j].soton=soton_ebteda;
                         }
                     }
-                    curr->satr_ebteda=satr_ebteda;
-                    curr->soton_ebteda=soton_ebteda;
-                    curr->soton_enteha=soton_enteha;
-                    curr->satr_enteha=satr_enteha;
                     curr=curr->next;
                     gharar_dadan_w_atraf_keshtiha(bazikon);
                 }
@@ -251,20 +257,22 @@ void put_ships(player*bazikon){
                 scanf("%d",&soton_enteha);
                 getchar();
                 if (ghabel_jaygozari_bodan_kashtiha(bazikon,satr_ebteda,soton_ebteda,satr_enteha,soton_enteha,5)){
+                    int j=0;
                     if (satr_enteha==satr_ebteda){
-                        for (int i = minimum(soton_ebteda,soton_enteha); i <minimum(soton_ebteda,soton_enteha)+5 ; i++) {
+                        for (int i = minimum(soton_ebteda,soton_enteha); i <minimum(soton_ebteda,soton_enteha)+5 ; j++,i++) {
                             bazikon->naghshe[satr_ebteda][i][0]='K';
+                            curr->k[j].satr=satr_ebteda;
+                            curr->k[j].soton=i;
                         }
                     }
                     else{
-                        for (int i = minimum(satr_ebteda,satr_enteha); i <minimum(satr_ebteda,satr_enteha)+5 ; i++) {
+                        for (int i = minimum(satr_ebteda,satr_enteha); i <minimum(satr_ebteda,satr_enteha)+5 ; j++,i++) {
                             bazikon->naghshe[i][soton_enteha][0]='K';
+                            curr->k[j].satr=i;
+                            curr->k[j].soton=soton_ebteda;
                         }
                     }
-                    curr->satr_ebteda=satr_ebteda;
-                    curr->soton_ebteda=soton_ebteda;
-                    curr->soton_enteha=soton_enteha;
-                    curr->satr_enteha=satr_enteha;
+
                     curr=curr->next;
                     gharar_dadan_w_atraf_keshtiha(bazikon);
                 }
@@ -383,6 +391,7 @@ int main() {
     switch (adad_switch) {
         case 1:
             play_with_friend(fuser);
+//            gameloop();
             break;
         case 2:
 
