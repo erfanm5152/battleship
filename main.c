@@ -4,23 +4,52 @@
 #include <stdbool.h>
 #define MAX_USER 100
 #define NAGHSHE 10
-
+#define MAX_SIZE_KASHTI 5
+int nobat;
 typedef struct {
     int size;
-    char *ebteda;
-    char *enteha;
+    char *khod_kashti[MAX_SIZE_KASHTI];
     struct keshti *next;
 }keshti;
+keshti *create_keshti(int size){
+    keshti *temp=(keshti*)malloc(sizeof(keshti));
+    temp->size=size;
+    temp->next=NULL;
+    temp->khod_kashti[0] = NULL;
+    return temp;
+}
 
 
 typedef struct {
     char user[MAX_USER];
     int seke;
     keshti *head;
-    char naghshe[NAGHSHE][NAGHSHE];
+    char naghshe[NAGHSHE][NAGHSHE][2];
 }player;
 player player1;
 player player2;
+
+
+void sakhte_keshtiha(player*bazikon){
+    bazikon->head=create_keshti(1);
+    keshti *temp;
+    keshti *curr=bazikon->head;
+    for (int i = 0; i <3 ; i++,curr=curr->next) {
+        temp=create_keshti(1);
+        curr->next=temp;
+    }
+    for (int j = 0; j <3 ; j++,curr=curr->next) {
+        temp=create_keshti(2);
+        curr->next=temp;
+    }
+    for (int k = 0; k <2 ; k++,curr=curr->next) {
+        temp=create_keshti(3);
+        curr->next=temp;
+    }
+    temp=create_keshti(5);
+    curr->next=temp;
+}//برای ساخت لینک لیستی از کشتی های هر بازیکن
+
 void print_naghshe(char naghshe[NAGHSHE][NAGHSHE][2],int n){
     printf("\\ ");
     for (int i = 0; i <10 ; i++) {
@@ -30,16 +59,24 @@ void print_naghshe(char naghshe[NAGHSHE][NAGHSHE][2],int n){
     for (int j = 0; j <NAGHSHE ; j++) {
         printf("%d ",j);
         for (int i = 0; i <NAGHSHE ; i++) {
-            printf("%c",naghshe[j][i][n]);
+            printf("%c ",naghshe[j][i][n]);
         }
         printf("\n");
     }
 }
 
+void create_board(player *bazikon){
+    for (int i = 0; i <NAGHSHE ; i++) {
+        for (int j = 0; j <NAGHSHE ; j++) {
+            bazikon->naghshe[i][j][0]='-';
+            bazikon->naghshe[i][j][1]='-';
+        }
+    }
+}
 
+void put_ships(player*bazikon){
 
-
-
+}
 
 
 void show(){
@@ -75,7 +112,7 @@ bool search(FILE *user,char *new){
         if (strcmp(temp.user,new)==0){return false;}
     }
     return true;
-}
+}//جست و جو در بین یوزر ها
 
 player chose_user(FILE *user){
     int adad_switch;
@@ -83,6 +120,7 @@ player chose_user(FILE *user){
     lab1:
     show1();
     scanf("%d",&adad_switch);
+    getchar();
     switch (adad_switch) {
         case 1:
             rewind(user);
@@ -96,7 +134,6 @@ player chose_user(FILE *user){
             fseek(user,(adad_switch-1)*sizeof(player),SEEK_SET);
             fread(&natige,sizeof(player),1,user);
             return natige;
-            break;
         case 2:
             printf("new user: ");
             char new_user[MAX_USER];
@@ -113,13 +150,15 @@ player chose_user(FILE *user){
                 printf("in user vojod darad.\n");
                 goto lab1;
             }
-            break;
     }
-}// در case 2 ساخت نقشه اضافه شود
+}//برای انتخاب کردن یوزر
 
 void play_with_friend(FILE*user){
     printf("first player:\n");
     player1=chose_user(user);
+    create_board(&player1);
+    sakhte_keshtiha(&player1);
+
 
 }
 
