@@ -343,7 +343,13 @@ void play_with_friend(FILE*user){
     put_ships(&player1);
     print_naghshe(player1.naghshe,0);
     printf("second player:\n");
+    lab5:
     player2=chose_user(user);
+    if (strcmp(player1.user,player2.user)==0){
+        printf("in user ghablan entekhab shode.\n"
+               "user digari ra entekhab konid.\n");
+        goto lab5;
+    }
     create_board(&player2);
     sakhte_keshtiha(&player2);
     put_ships(&player2);
