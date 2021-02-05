@@ -6,17 +6,34 @@
 #define NAGHSHE 10
 #define MAX_SIZE_KASHTI 5
 
-void show11();
-int nobat;
+
 typedef struct {
     int satr,soton;
 }mokhtasat;
+
 typedef struct {
     int size;
     mokhtasat k[MAX_SIZE_KASHTI];
     char khod_kashti[MAX_SIZE_KASHTI];
     struct keshti *next;
 }keshti;
+
+typedef struct {
+    char user[MAX_USER];
+    int seke;
+    keshti *head;
+    char naghshe[NAGHSHE][NAGHSHE][2];
+}player;
+
+
+void show11();
+void delete_linked_list(player**harif,player *bazikon,int adad_delete);
+
+int nobat;
+
+player player1;
+player player2;
+
 keshti *create_keshti(int size){
     keshti *temp=(keshti*)malloc(sizeof(keshti));
     temp->size=size;
@@ -32,14 +49,8 @@ keshti *create_keshti(int size){
 }
 
 
-typedef struct {
-    char user[MAX_USER];
-    int seke;
-    keshti *head;
-    char naghshe[NAGHSHE][NAGHSHE][2];
-}player;
-player player1;
-player player2;
+
+
 
 
 void sakhte_keshtiha(player*bazikon){
@@ -382,6 +393,110 @@ void play_with_friend(FILE*user){
     print_naghshe(player2.naghshe,0);
 }//برای ایجاد player1 و player2  در بازی دو نفره
 
+
+bool dorost_bodan_khone_entekhabi(player harif,int satr,int soton){
+    if (satr>9||satr<0||soton>9||soton<0){return false;}
+    if (harif.naghshe[satr][soton][1]=='S' || harif.naghshe[satr][soton][1]=='C'|| harif.naghshe[satr][soton][1]=='W'){return false;}
+    return true;
+}
+void ghara_dadan_W_dar_naghshe_harif(player*harif){
+    for (int i = 0; i <NAGHSHE ; i++) {
+        for (int j = 0; j <NAGHSHE ; j++) {
+            if (harif->naghshe[i][j][1]=='C'){
+                for (int k = i-1; k <i+2 ; k++) {
+                    for (int l = j-1; l <j+2 ; l++) {
+                        if (k<0||k>9||l<0||l>9||harif->naghshe[k][l][1]=='C'){ continue;}
+                        else{harif->naghshe[k][l][1]='W';}
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+
+void gharar_dadan_C_ha(player**harif,player *bazikon){
+    keshti *curr=(*harif)->head;
+    int k=0;
+    while (curr!=NULL){
+        int j=0;
+        for (int i = 0; i <curr->size ; i++) {
+            if ((*harif)->naghshe[curr->k[i].satr][curr->k[i].soton][1]=='S'){j++;}
+            if (j==curr->size){
+                for (int l = 0; l <curr->size ; l++) {
+                    (*harif)->naghshe[curr->k[l].satr][curr->k[l].soton][1]='C';
+                }
+                delete_linked_list(harif,bazikon,k);
+            }
+        }
+        curr=curr->next;
+        k++;
+    }
+}
+void delete_linked_list(player**harif,player *bazikon,int adad_delete){//adad_delete از صفر شروع مییشود//
+    keshti *curr=(*harif)->head;
+    keshti *a=curr->next;
+    for (int i = 0; i <adad_delete-1 ; i++) {
+        curr=curr->next;
+        a=a->next;
+    }
+    if (curr==(*harif)->head){(*harif)->head=a;}
+    else{
+        curr->next=a->next;
+    }
+    if (a->size==1){bazikon->seke+=25;}
+    else if(a->size==2){bazikon->seke+=12;}
+    else if(a->size==3){bazikon->seke+=8;}
+    else if(a->size==5){bazikon->seke+=5;}
+}
+
+bool emal_taghir_dar_khane_entekhab_shode(player*harif ,int satr,int soton){//در صورتی که خانه انتخاب شده کشتی باشد true بر میگرداند.
+    if (harif->naghshe[satr][soton][0]=='W'){
+        harif->naghshe[satr][soton][1]='W';
+        return false;
+    }
+    if (harif->naghshe[satr][soton][0]=='K'){
+        harif->naghshe[satr][soton][1]='S';
+        return true;
+    }
+    if (harif->naghshe[satr][soton][0]=='-'){
+        harif->naghshe[satr][soton][1]='x';
+        return false;
+    }
+}
+void gameloop(player **bazikon1,player **bazikon2){//اضافه کردن مشخص شدن برنده و خروج از برنامه با گرفتن یک عدد (1-) و save کردن آن
+    player **bazikon,**harif;
+    int satr,soton;
+    while ((*bazikon1)->head!=NULL && (*bazikon2)->head!=NULL) {
+        if (nobat % 2 == 0) {
+            bazikon = bazikon1;
+            harif = bazikon2;
+        } else {
+            bazikon = bazikon2;
+            harif = bazikon1;
+        }
+        lab6:
+        print_naghshe((*harif)->naghshe,1);
+        printf("user %s khanei ra entekhab konid :\n",(*bazikon)->user);
+        printf("\tsatr: ");
+        scanf("%d",&satr);
+        getchar();
+        printf("\tsoton: ");
+        scanf("%d",&soton);
+        getchar();
+        if (dorost_bodan_khone_entekhabi(**harif,satr,soton)==false){
+            printf("khone entekhab shode mojaz nist.\n"
+                   "khane digari ra entekhab konid.\n");
+            goto lab6;
+        }
+        if (emal_taghir_dar_khane_entekhab_shode(*harif,satr,soton)==false){nobat++;}
+        gharar_dadan_C_ha(harif,*bazikon);
+        ghara_dadan_W_dar_naghshe_harif(*harif);
+        print_naghshe((*harif)->naghshe,1);
+    }
+}
 int main() {
     FILE *fuser=fopen("user.bin","a+b");
     lab:
@@ -391,7 +506,9 @@ int main() {
     switch (adad_switch) {
         case 1:
             play_with_friend(fuser);
-//            gameloop();
+            player *player11=&player1;
+            player *player22=&player2;
+            gameloop(&player11,&player22);
             break;
         case 2:
 
@@ -405,6 +522,7 @@ int main() {
         case 6:
 
         case 7:
+            fclose(fuser);
             exit(10);
     }
 }
