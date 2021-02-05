@@ -25,6 +25,14 @@ typedef struct {
     char naghshe[NAGHSHE][NAGHSHE][2];
 }player;
 
+typedef struct {
+    player bazikon1;
+    player bazikon2;
+    int nobat;
+    int vaziyat_bazi;
+}save;
+
+save save_bazi;
 
 void show11();
 void delete_linked_list(player**harif,player *bazikon,int adad_delete);
@@ -466,7 +474,7 @@ bool emal_taghir_dar_khane_entekhab_shode(player*harif ,int satr,int soton){//د
         return false;
     }
 }
-void gameloop(player **bazikon1,player **bazikon2){//اضافه کردن مشخص شدن برنده و خروج از برنامه با گرفتن یک عدد (1-) و save کردن آن
+int gameloop(player **bazikon1,player **bazikon2){//وضعیت بازی را نشان میدهد.
     player **bazikon,**harif;
     int satr,soton;
     while ((*bazikon1)->head!=NULL && (*bazikon2)->head!=NULL) {
@@ -478,13 +486,16 @@ void gameloop(player **bazikon1,player **bazikon2){//اضافه کردن مشخ�
             harif = bazikon1;
         }
         lab6:
+        printf("*** BARAYE KHOROJ AZ BAZI -1 RA DAR SATR YA SOTON VARED KONID ***\n");
         print_naghshe((*harif)->naghshe,1);
         printf("user %s khanei ra entekhab konid :\n",(*bazikon)->user);
         printf("\tsatr: ");
         scanf("%d",&satr);
+        if (satr==-1){return 10;}
         getchar();
         printf("\tsoton: ");
         scanf("%d",&soton);
+        if (soton==-1){return 10;}
         getchar();
         if (dorost_bodan_khone_entekhabi(**harif,satr,soton)==false){
             printf("khone entekhab shode mojaz nist.\n"
@@ -496,9 +507,52 @@ void gameloop(player **bazikon1,player **bazikon2){//اضافه کردن مشخ�
         ghara_dadan_W_dar_naghshe_harif(*harif);
         print_naghshe((*harif)->naghshe,1);
     }
+    if ((*bazikon1)->head!=NULL){
+        printf("%s barande shod!!!!!!\n"
+               "tabrik\n",(*bazikon2)->user);
+        (*bazikon1)->seke=(*bazikon1)->seke/2;
+
+    }
+    else{
+        printf("%s barande shod!!!!!!\n"
+               "tabrik\n",(*bazikon1)->user);
+        (*bazikon2)->seke=(*bazikon2)->seke/2;
+    }
+    return 0;
 }
+
+void print_game_list(save bazi){
+    static int i=1;
+    printf("%d)player1: %s\tplayer2: %s\n",i,bazi.bazikon1.user,bazi.bazikon2.user);
+    if (bazi.vaziyat_bazi==0){
+        printf("in bazi be payan reside.\n");
+    }
+    else{
+        if (bazi.nobat%2==0){printf("nobat %s ast\n",bazi.bazikon1.user);}
+        else{printf("nobat %s ast.\n",bazi.bazikon2.user);}
+    }
+    i++;
+}
+
+void print_save_file(FILE*fsave){
+    save a;
+    while (fread(&a,sizeof(save),1,fsave)>0){
+        print_game_list(a);
+    }
+}
+
+
+save entekhab_bazi(FILE*fsave,int n){
+    save a;
+    fseek(fsave,(n-1)*sizeof(save),SEEK_SET);
+    fread(&a,sizeof(save),1,fsave);
+    return a;
+}
+
+
 int main() {
     FILE *fuser=fopen("user.bin","a+b");
+    FILE *fsave=fopen("save.bin","a+b");
     lab:
     show();
     int adad_switch;
@@ -508,12 +562,28 @@ int main() {
             play_with_friend(fuser);
             player *player11=&player1;
             player *player22=&player2;
-            gameloop(&player11,&player22);
+            save_bazi.vaziyat_bazi=gameloop(&player11,&player22);
+            save_bazi.bazikon1=player1;
+            save_bazi.bazikon2=player2;
+            save_bazi.nobat=nobat;
+            fwrite(&save_bazi,sizeof(save),1,fsave);
             break;
         case 2:
 
-        case 3:
-
+        case 3:// این کیس در مورد شروع بازی مشکل دارد.
+            print_save_file(fsave);
+            printf("shomare bazi morede nazar ra vared konid: \n");
+            scanf("%d",&adad_switch);
+            fflush(stdin);
+            save_bazi=entekhab_bazi(fsave,adad_switch);
+            player1=save_bazi.bazikon1;
+            player2=save_bazi.bazikon2;
+            nobat=save_bazi.nobat;
+            player11=&player1;
+            player22=&player2;
+            save_bazi.vaziyat_bazi=gameloop(&player11,&player22);
+            fwrite(&save_bazi,sizeof(save),1,fsave);
+            break;
         case 4:
 
         case 5:
@@ -522,7 +592,9 @@ int main() {
         case 6:
 
         case 7:
-            fclose(fuser);
-            exit(10);
+            break;
     }
+    fclose(fuser);
+    fclose(fsave);
+    exit(10);
 }
