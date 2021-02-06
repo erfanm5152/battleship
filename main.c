@@ -30,6 +30,8 @@ typedef struct {
 typedef struct {
     player bazikon1;
     player bazikon2;
+    char tarikh[100];
+    char saat[100];
     int nobat;
     int vaziyat_bazi;
 }save;
@@ -541,7 +543,6 @@ int gameloop(player **bazikon1,player **bazikon2){//وضعیت بازی را ن�
         gharar_dadan_C_ha(harif,*bazikon);
         ghara_dadan_W_dar_naghshe_harif(*harif);
         print_naghshe((*harif)->naghshe,1);
-        print_linked_list(**harif);
     }
     if ((*bazikon1)->head!=NULL){
         printf("%s barande shod!!!!!!\n"
@@ -558,8 +559,8 @@ int gameloop(player **bazikon1,player **bazikon2){//وضعیت بازی را ن�
 }
 
 void print_game_list(save bazi){
-    printf("player1: %s\tplayer2: %s\n",bazi.bazikon1.user,bazi.bazikon2.user);
-    if (bazi.vaziyat_bazi!=10){
+    printf("player1: %s\tplayer2: %s\t TIME:%s \t DATE:%s\n",bazi.bazikon1.user,bazi.bazikon2.user,bazi.saat,bazi.tarikh);
+    if (bazi.vaziyat_bazi != 10){
         printf("in bazi be payan reside.\t");
         if (bazi.vaziyat_bazi==1){
             printf("%s barande shode ast.\n",bazi.bazikon1.user);
@@ -644,6 +645,8 @@ void save_kardan(FILE*fsave,player bazikon1,player bazikon2){
     save_bazi.bazikon1=bazikon1;
     save_bazi.bazikon2=bazikon2;
     save_bazi.nobat=nobat;
+    strcpy(save_bazi.saat,__TIME__);
+    strcpy(save_bazi.tarikh,__DATE__);
     fwrite(&save_bazi,sizeof(save),1,fsave);
 }
 
@@ -672,9 +675,7 @@ int main() {
             }
             break;
         case 2:
-            print_file(fkeshti2);
-            printf("\n\n");
-            print_file(fkeshti1);
+
             break;
         case 3://  این کیس در مورد شروع بازی مشکل دارد. مشکل از لینک لیست کشتی هاست چون اشره گر را نمیتوان سیو کرد.
         lab7:
