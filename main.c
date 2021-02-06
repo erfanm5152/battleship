@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
 #define MAX_USER 100
 #define NAGHSHE 10
 #define MAX_SIZE_KASHTI 5
-
+//یک تابع برای اینکه در پایان هر بازی تعداد سکه های هر یوزر را اپدیت کند میخواهیم.
+//که نیازمند یک تابع است که در فایل یوزر ها جست و جو کند
 
 typedef struct {
     int satr,soton;
@@ -32,11 +34,16 @@ typedef struct {
     int vaziyat_bazi;
 }save;
 
+typedef struct {
+    keshti *head1;
+    keshti *head2;
+}save_keshti;
+
 save save_bazi;
 
 void show11();
 void delete_linked_list(player**harif,player *bazikon,int adad_delete);
-
+void print_linked_list(player bazikon);
 int nobat;
 
 player player1;
@@ -403,6 +410,14 @@ void play_with_friend(FILE*user){
     print_naghshe(player2.naghshe,0);
 }//برای ایجاد player1 و player2  در بازی دو نفره
 
+void print_player(player bazikon){//برای دیباگ کردن
+    puts(bazikon.user);
+    printf("%d",bazikon.seke);
+    print_naghshe(bazikon.naghshe,0);
+    print_naghshe(bazikon.naghshe,1);
+    print_linked_list(bazikon);
+
+}
 
 bool dorost_bodan_khone_entekhabi(player harif,int satr,int soton){
     if (satr>9||satr<0||soton>9||soton<0){return false;}
@@ -428,7 +443,7 @@ void print_linked_list(player bazikon){
     keshti *curr=bazikon.head;
     int i=1;
     while (curr!=NULL){
-        printf("%d) ",i);
+        printf("%d) %d ",i,curr->size);
         for (int j = 0; j <curr->size ; j++) {
             printf(" %d %d ! ",curr->k[j].satr,curr->k[j].soton);
         }
@@ -542,10 +557,9 @@ int gameloop(player **bazikon1,player **bazikon2){//وضعیت بازی را ن�
 }
 
 void print_game_list(save bazi){
-    static int i=1;
-    printf("%d)player1: %s\tplayer2: %s\n",i,bazi.bazikon1.user,bazi.bazikon2.user);
+    printf("player1: %s\tplayer2: %s\n",bazi.bazikon1.user,bazi.bazikon2.user);
     if (bazi.vaziyat_bazi!=10){
-        printf("in bazi be payan reside.\n");
+        printf("in bazi be payan reside.\t");
         if (bazi.vaziyat_bazi==1){
             printf("%s barande shode ast.\n",bazi.bazikon1.user);
         }
@@ -557,13 +571,17 @@ void print_game_list(save bazi){
         if (bazi.nobat%2==0){printf("nobat %s ast\n",bazi.bazikon1.user);}
         else{printf("nobat %s ast.\n",bazi.bazikon2.user);}
     }
-    i++;
+
 }
 
 void print_save_file(FILE*fsave){
     save a;
+    int i=1;
+    rewind(fsave);
     while (fread(&a,sizeof(save),1,fsave)>0){
+        printf("%d)",i);
         print_game_list(a);
+        i++;
     }
 }
 
@@ -576,9 +594,46 @@ save entekhab_bazi(FILE*fsave,int n){
 }
 
 
+void save_linked_list(FILE*fkeshti1,player bazikon1){
+    keshti a;
+    a.size=0;
+    keshti *curr1=bazikon1.head;
+    fwrite(&a,sizeof(keshti),1,fkeshti1);
+    while (curr1!=NULL){
+        a=*curr1;
+        fwrite(&a,sizeof(keshti),1,fkeshti1);
+        curr1=curr1->next;
+    }
+}
+
+void match_kardan_linkedlist_az_file(FILE*fkeshti,player*bazikon,int adad){
+    int k=0;
+    keshti a;
+    bazikon->head=create_keshti(0);
+    keshti *curr=bazikon->head;
+    while (k!=adad){
+        fread(&a,sizeof(keshti),1,fkeshti);
+        if (a.size == 0){k++;}
+    }
+    while (fread(&a,sizeof(keshti),1,fkeshti)>0 ){
+        if (a.size==0){ break;}
+        keshti *temp=create_keshti(a.size);
+        for (int i = 0; i <a.size ; i++) {
+            temp->k[i]=a.k[i];
+        }
+        curr->next=temp;
+        curr=curr->next;
+    }
+    bazikon->head=bazikon->head->next;
+}
+
+
+
 int main() {
     FILE *fuser=fopen("user.bin","a+b");
     FILE *fsave=fopen("save.bin","a+b");
+    FILE *fkeshti1=fopen("fkeshti1.bin","a+b");
+    FILE *fkeshti2=fopen("fkeshti2.bin","a+b");
     lab:
     show();
     int adad_switch;
@@ -589,15 +644,16 @@ int main() {
             player *player11=&player1;
             player *player22=&player2;
             save_bazi.vaziyat_bazi=gameloop(&player11,&player22);
-            printf("%s %d \t %s %d",player1.user,player1.seke,player2.user,player2.seke);
             save_bazi.bazikon1=player1;
             save_bazi.bazikon2=player2;
             save_bazi.nobat=nobat;
+            save_linked_list(fkeshti1,player1);
+            save_linked_list(fkeshti2,player2);
             fwrite(&save_bazi,sizeof(save),1,fsave);
             break;
         case 2:
-
-        case 3:// این کیس در مورد شروع بازی مشکل دارد.
+            break;
+        case 3://  این کیس در مورد شروع بازی مشکل دارد. مشکل از لینک لیست کشتی هاست چون اشره گر را نمیتوان سیو کرد.
         lab7:
             print_save_file(fsave);
             printf("shomare bazi morede nazar ra vared konid: \n");
@@ -605,27 +661,37 @@ int main() {
             fflush(stdin);
             save_bazi=entekhab_bazi(fsave,adad_switch);
             if (save_bazi.vaziyat_bazi!=10){
-                printf("in bazi be payan reside ast.\n");
+                printf("in bazi be payan reside ast.\n"
+                       "bazi digari ra entekhab konid.\n");
                 goto lab7;
             }
             player1_load=save_bazi.bazikon1;
             player2_load=save_bazi.bazikon2;
             nobat=save_bazi.nobat;
+            match_kardan_linkedlist_az_file(fkeshti1,&player1_load,adad_switch);
+            match_kardan_linkedlist_az_file(fkeshti2,&player2_load,adad_switch);
             player *player11_load=&player1_load;
             player *player22_load=&player2_load;
             save_bazi.vaziyat_bazi=gameloop(&player11_load,&player22_load);
+            save_bazi.bazikon1=player1_load;
+            save_bazi.bazikon2=player2_load;
+            save_bazi.nobat=nobat;
+            save_linked_list(fkeshti1,player1_load);
+            save_linked_list(fkeshti2,player2_load);
             fwrite(&save_bazi,sizeof(save),1,fsave);
             break;
-        case 4:
+        case 4://load last game
 
-        case 5:
+        case 5://setting
             show5();
             goto lab;
-        case 6:
+        case 6://scoreboard
 
-        case 7:
+        case 7://exit
             break;
     }
+    fclose(fkeshti1);
+    fclose(fkeshti2);
     fclose(fuser);
     fclose(fsave);
     exit(10);
