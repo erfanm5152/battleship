@@ -41,6 +41,8 @@ int nobat;
 
 player player1;
 player player2;
+player player1_load;
+player player2_load;
 
 keshti *create_keshti(int size){
     keshti *temp=(keshti*)malloc(sizeof(keshti));
@@ -422,8 +424,19 @@ void ghara_dadan_W_dar_naghshe_harif(player*harif){
     }
 }
 
-
-
+void print_linked_list(player bazikon){
+    keshti *curr=bazikon.head;
+    int i=1;
+    while (curr!=NULL){
+        printf("%d) ",i);
+        for (int j = 0; j <curr->size ; j++) {
+            printf(" %d %d ! ",curr->k[j].satr,curr->k[j].soton);
+        }
+        printf("\n");
+        i++;
+        curr=curr->next;
+    }
+}///برای دیباگ کردن
 
 void gharar_dadan_C_ha(player**harif,player *bazikon){
     keshti *curr=(*harif)->head;
@@ -445,19 +458,26 @@ void gharar_dadan_C_ha(player**harif,player *bazikon){
 }
 void delete_linked_list(player**harif,player *bazikon,int adad_delete){//adad_delete از صفر شروع مییشود//
     keshti *curr=(*harif)->head;
-    keshti *a=curr->next;
+    keshti *a=(*harif)->head->next;
     for (int i = 0; i <adad_delete-1 ; i++) {
         curr=curr->next;
         a=a->next;
     }
-    if (curr==(*harif)->head){(*harif)->head=a;}
+    if (adad_delete==0){
+        (*harif)->head=a;
+        if (curr->size==1){bazikon->seke+=25;}
+        else if(curr->size==2){bazikon->seke+=12;}
+        else if(curr->size==3){bazikon->seke+=8;}
+        else if(curr->size==5){bazikon->seke+=5;}
+    }
     else{
         curr->next=a->next;
+        if (a->size==1){bazikon->seke+=25;}
+        else if(a->size==2){bazikon->seke+=12;}
+        else if(a->size==3){bazikon->seke+=8;}
+        else if(a->size==5){bazikon->seke+=5;}
     }
-    if (a->size==1){bazikon->seke+=25;}
-    else if(a->size==2){bazikon->seke+=12;}
-    else if(a->size==3){bazikon->seke+=8;}
-    else if(a->size==5){bazikon->seke+=5;}
+
 }
 
 bool emal_taghir_dar_khane_entekhab_shode(player*harif ,int satr,int soton){//در صورتی که خانه انتخاب شده کشتی باشد true بر میگرداند.
@@ -491,41 +511,47 @@ int gameloop(player **bazikon1,player **bazikon2){//وضعیت بازی را ن�
         printf("user %s khanei ra entekhab konid :\n",(*bazikon)->user);
         printf("\tsatr: ");
         scanf("%d",&satr);
-        if (satr==-1){return 10;}
         getchar();
+        if (satr==-1){return 10;}//ناتمام
         printf("\tsoton: ");
         scanf("%d",&soton);
-        if (soton==-1){return 10;}
         getchar();
+        if (soton==-1){return 10;}//ناتمام
         if (dorost_bodan_khone_entekhabi(**harif,satr,soton)==false){
             printf("khone entekhab shode mojaz nist.\n"
                    "khane digari ra entekhab konid.\n");
             goto lab6;
         }
-        if (emal_taghir_dar_khane_entekhab_shode(*harif,satr,soton)==false){nobat++;}
+        if (emal_taghir_dar_khane_entekhab_shode(*harif,satr,soton) == false){nobat++;}
         gharar_dadan_C_ha(harif,*bazikon);
         ghara_dadan_W_dar_naghshe_harif(*harif);
         print_naghshe((*harif)->naghshe,1);
     }
     if ((*bazikon1)->head!=NULL){
         printf("%s barande shod!!!!!!\n"
-               "tabrik\n",(*bazikon2)->user);
-        (*bazikon1)->seke=(*bazikon1)->seke/2;
-
+               "tabrik\n",(*bazikon1)->user);
+        (*bazikon2)->seke=(*bazikon2)->seke/2;
+        return 1;//پلیر 1 برده است
     }
     else{
         printf("%s barande shod!!!!!!\n"
-               "tabrik\n",(*bazikon1)->user);
-        (*bazikon2)->seke=(*bazikon2)->seke/2;
+               "tabrik\n",(*bazikon2)->user);
+        (*bazikon1)->seke=(*bazikon1)->seke/2;
+        return 2;//پلیر 2 برده است
     }
-    return 0;
 }
 
 void print_game_list(save bazi){
     static int i=1;
     printf("%d)player1: %s\tplayer2: %s\n",i,bazi.bazikon1.user,bazi.bazikon2.user);
-    if (bazi.vaziyat_bazi==0){
+    if (bazi.vaziyat_bazi!=10){
         printf("in bazi be payan reside.\n");
+        if (bazi.vaziyat_bazi==1){
+            printf("%s barande shode ast.\n",bazi.bazikon1.user);
+        }
+        else{
+            printf("%s barande shode ast.\n",bazi.bazikon2.user);
+        }
     }
     else{
         if (bazi.nobat%2==0){printf("nobat %s ast\n",bazi.bazikon1.user);}
@@ -563,6 +589,7 @@ int main() {
             player *player11=&player1;
             player *player22=&player2;
             save_bazi.vaziyat_bazi=gameloop(&player11,&player22);
+            printf("%s %d \t %s %d",player1.user,player1.seke,player2.user,player2.seke);
             save_bazi.bazikon1=player1;
             save_bazi.bazikon2=player2;
             save_bazi.nobat=nobat;
@@ -571,17 +598,22 @@ int main() {
         case 2:
 
         case 3:// این کیس در مورد شروع بازی مشکل دارد.
+        lab7:
             print_save_file(fsave);
             printf("shomare bazi morede nazar ra vared konid: \n");
             scanf("%d",&adad_switch);
             fflush(stdin);
             save_bazi=entekhab_bazi(fsave,adad_switch);
-            player1=save_bazi.bazikon1;
-            player2=save_bazi.bazikon2;
+            if (save_bazi.vaziyat_bazi!=10){
+                printf("in bazi be payan reside ast.\n");
+                goto lab7;
+            }
+            player1_load=save_bazi.bazikon1;
+            player2_load=save_bazi.bazikon2;
             nobat=save_bazi.nobat;
-            player11=&player1;
-            player22=&player2;
-            save_bazi.vaziyat_bazi=gameloop(&player11,&player22);
+            player *player11_load=&player1_load;
+            player *player22_load=&player2_load;
+            save_bazi.vaziyat_bazi=gameloop(&player11_load,&player22_load);
             fwrite(&save_bazi,sizeof(save),1,fsave);
             break;
         case 4:
