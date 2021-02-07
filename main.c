@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <time.h>
 #define MAX_USER 100
+#define MAX_PLAYER 1000
 #define NAGHSHE 10
 #define MAX_SIZE_KASHTI 5
 //یک تابع برای اینکه در پایان هر بازی تعداد سکه های هر یوزر را اپدیت کند میخواهیم.
@@ -363,8 +364,9 @@ player chose_user(FILE *user){
         case 1:
             rewind(user);
             int i = 1;
+            printf("  %-30s %s\n","USER","SEKE");
             while (fread(&temp, sizeof(player), 1, user) > 0) {
-                printf("%d)%s \n", i, temp.user);
+                printf("%d)%-30s %d\n", i, temp.user,temp.seke);
                 i++;
             }
             printf("adad user mored nadzar ra entekhab konid : \n");
@@ -373,6 +375,7 @@ player chose_user(FILE *user){
             fread(&natige,sizeof(player),1,user);
             return natige;
         case 2:
+
             printf("new user: ");
             char new_user[MAX_USER];
             fflush(stdin);
@@ -651,17 +654,53 @@ void save_kardan(FILE*fsave,player bazikon1,player bazikon2){
     fwrite(&save_bazi,sizeof(save),1,fsave);
 }
 
+void update_user(FILE *fuser,player *bazikon){/// مشکل دارد
+    player temp;
+    fclose(fuser);
+    fuser=fopen("user.bin","r+b");
+    int i=0;
+    fread(&temp,sizeof(temp),1,fuser);
+    while (strcmp(temp.user,bazikon->user)!=0){
+        fread(&temp,sizeof(temp),1,fuser);
+        i++;
+    }
+    bazikon->seke+=temp.seke;
+    fseek(fuser,i*sizeof(player),SEEK_SET);
+    fwrite(bazikon,sizeof(player),1,fuser);
+    bazikon->seke=0;
+    fclose(fuser);
+}
 
+int compare(void*i1,void*i2){
+    player a= *((player*)i1);
+    player b= *((player*)i1);
+    return a.seke>b.seke?1:(a.seke==b.seke)?0:-1;
+}
 
+void score_board(FILE*fuser){
+    player a[MAX_PLAYER];
+    player temp;
+    rewind(fuser);
+    int i=0;
+    while (fread(&temp,sizeof(player),1,fuser)>0){
+        a[i]=temp;
+        i++;
+    }
+    qsort(a,i-1,sizeof(player),compare);
+    printf("   %-30s %s\n","USER","SEKE");
+    for (int j = 0; j <i ; j++) {
+        printf("%d) %-30s %d\n",j+1,a[j].user,a[j].seke);
+    }
+}
 
 int main() {
-    lab8:  ;
+    lab:  ;
 
     FILE *fuser=fopen("user.bin","a+b");
     FILE *fsave=fopen("save.bin","a+b");
+    FILE *fsave_tamam=fopen("save tamam.bin","a+b");
     FILE *fkeshti1=fopen("fkeshti1.bin","a+b");
     FILE *fkeshti2=fopen("fkeshti2.bin","a+b");
-    lab:
     show();
     int adad_switch;
     int adad_akharin_bazi;
@@ -678,6 +717,9 @@ int main() {
                 save_linked_list(fkeshti2,player2);
             }
             else{
+                save_kardan(fsave_tamam,player1,player2);
+                update_user(fuser,&player1_load);
+                update_user(fuser,&player2_load);
                 //اپدیت سکه ها
             }
             break;
@@ -700,6 +742,7 @@ int main() {
             }
             player1_load=save_bazi.bazikon1;
             player2_load=save_bazi.bazikon2;
+
             nobat=save_bazi.nobat;
             match_kardan_linkedlist_az_file(fkeshti1,&player1_load,adad_switch);
             match_kardan_linkedlist_az_file(fkeshti2,&player2_load,adad_switch);
@@ -713,8 +756,12 @@ int main() {
                 save_kardan(fsave,player1_load,player2_load);
                 save_linked_list(fkeshti1,player1_load);
                 save_linked_list(fkeshti2,player2_load);
+
             }
             else{
+                save_kardan(fsave_tamam,player1_load,player2_load);
+                update_user(fuser,&player1_load);
+                update_user(fuser,&player2_load);
                //اپدیته سکه ها
             }
             break;
@@ -729,6 +776,7 @@ int main() {
             player1_load=save_bazi.bazikon1;
             player2_load=save_bazi.bazikon2;
             nobat=save_bazi.nobat;
+
             match_kardan_linkedlist_az_file(fkeshti1,&player1_load,adad_akharin_bazi);
             match_kardan_linkedlist_az_file(fkeshti2,&player2_load,adad_akharin_bazi);
             player11_load = &player1_load;
@@ -743,22 +791,27 @@ int main() {
                 save_linked_list(fkeshti2,player2_load);
             }
             else{
+                save_kardan(fsave_tamam,player1_load,player2_load);
+                update_user(fuser,&player1_load);
+                update_user(fuser,&player2_load);
                 //اپدیته سکه ها
             }
             break;
         case 5://setting
             show5();
-
             break;
         case 6://scoreboard
-
+            score_board(fuser);
+            printf("tarikhche bazihaye tamam shode: \n");
+            print_save_file(fsave_tamam);
             break;
         case 7: //exit
             exit(10);
     }
     fclose(fkeshti1);
     fclose(fkeshti2);
+    fclose(fsave_tamam);
     fclose(fuser);
     fclose(fsave);
-    goto lab8;
+    goto lab;
 }
