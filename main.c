@@ -576,7 +576,7 @@ void print_game_list(save bazi){
 
 }
 
-void print_save_file(FILE*fsave){
+int print_save_file(FILE*fsave){//شماره آخرین بازی را بر میگرداند.
     save a;
     int i=1;
     rewind(fsave);
@@ -585,6 +585,7 @@ void print_save_file(FILE*fsave){
         print_game_list(a);
         i++;
     }
+    return i-1;
 }
 
 
@@ -651,6 +652,8 @@ void save_kardan(FILE*fsave,player bazikon1,player bazikon2){
 }
 
 
+
+
 int main() {
     lab8:  ;
 
@@ -661,6 +664,7 @@ int main() {
     lab:
     show();
     int adad_switch;
+    int adad_akharin_bazi;
     scanf("%d",&adad_switch);
     switch (adad_switch) {
         case 1:
@@ -672,6 +676,9 @@ int main() {
                 save_kardan(fsave,player1,player2);
                 save_linked_list(fkeshti1,player1);
                 save_linked_list(fkeshti2,player2);
+            }
+            else{
+                //اپدیت سکه ها
             }
             break;
         case 2:
@@ -707,9 +714,37 @@ int main() {
                 save_linked_list(fkeshti1,player1_load);
                 save_linked_list(fkeshti2,player2_load);
             }
+            else{
+               //اپدیته سکه ها
+            }
             break;
         case 4://load last game
-//            load_last_game()
+            adad_akharin_bazi=print_save_file(fsave);
+            save_bazi=entekhab_bazi(fsave,adad_akharin_bazi);
+            if (save_bazi.vaziyat_bazi!=10){
+                printf("in bazi be payan reside ast.\n"
+                       "bazi digari ra entekhab konid.\n");
+                goto lab7;
+            }
+            player1_load=save_bazi.bazikon1;
+            player2_load=save_bazi.bazikon2;
+            nobat=save_bazi.nobat;
+            match_kardan_linkedlist_az_file(fkeshti1,&player1_load,adad_akharin_bazi);
+            match_kardan_linkedlist_az_file(fkeshti2,&player2_load,adad_akharin_bazi);
+            player11_load = &player1_load;
+            player22_load = &player2_load;
+//            fclose(fsave);
+//            FILE *fsave=fopen("save.bin","a+b");
+            fseek(fsave,0,SEEK_END);
+            save_bazi.vaziyat_bazi=gameloop(&player11_load,&player22_load);
+            if (save_bazi.vaziyat_bazi==10){
+                save_kardan(fsave,player1_load,player2_load);
+                save_linked_list(fkeshti1,player1_load);
+                save_linked_list(fkeshti2,player2_load);
+            }
+            else{
+                //اپدیته سکه ها
+            }
             break;
         case 5://setting
             show5();
