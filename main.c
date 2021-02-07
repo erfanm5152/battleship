@@ -546,13 +546,13 @@ int gameloop(player **bazikon1,player **bazikon2){//وضعیت بازی را ن�
     }
     if ((*bazikon1)->head!=NULL){
         printf("%s barande shod!!!!!!\n"
-               "tabrik\n",(*bazikon1)->user);
+               "tabrik.\n",(*bazikon1)->user);
         (*bazikon2)->seke=(*bazikon2)->seke/2;
         return 1;//پلیر 1 برده است
     }
     else{
         printf("%s barande shod!!!!!!\n"
-               "tabrik\n",(*bazikon2)->user);
+               "tabrik.\n",(*bazikon2)->user);
         (*bazikon1)->seke=(*bazikon1)->seke/2;
         return 2;//پلیر 2 برده است
     }
@@ -650,7 +650,10 @@ void save_kardan(FILE*fsave,player bazikon1,player bazikon2){
     fwrite(&save_bazi,sizeof(save),1,fsave);
 }
 
+
 int main() {
+    lab8:  ;
+
     FILE *fuser=fopen("user.bin","a+b");
     FILE *fsave=fopen("save.bin","a+b");
     FILE *fkeshti1=fopen("fkeshti1.bin","a+b");
@@ -670,12 +673,11 @@ int main() {
                 save_linked_list(fkeshti1,player1);
                 save_linked_list(fkeshti2,player2);
             }
-            else{
-                save_kardan(fsave,player1,player2);
-            }
             break;
         case 2:
-
+            print_file(fkeshti1);
+            printf("\n");
+            print_file(fkeshti2);
             break;
         case 3://  این کیس در مورد شروع بازی مشکل دارد. مشکل از لینک لیست کشتی هاست چون اشره گر را نمیتوان سیو کرد.
         lab7:
@@ -696,32 +698,32 @@ int main() {
             match_kardan_linkedlist_az_file(fkeshti2,&player2_load,adad_switch);
             player *player11_load = &player1_load;
             player *player22_load = &player2_load;
-            fclose(fsave);
-            FILE *fsave=fopen("save.bin","a+b");
+//            fclose(fsave);
+//            FILE *fsave=fopen("save.bin","a+b");
+            fseek(fsave,0,SEEK_END);
             save_bazi.vaziyat_bazi=gameloop(&player11_load,&player22_load);
             if (save_bazi.vaziyat_bazi==10){
                 save_kardan(fsave,player1_load,player2_load);
                 save_linked_list(fkeshti1,player1_load);
                 save_linked_list(fkeshti2,player2_load);
             }
-            else{
-                save_kardan(fsave,player1_load,player2_load);
-            }
-
             break;
         case 4://load last game
-
+//            load_last_game()
+            break;
         case 5://setting
             show5();
-            goto lab;
+
+            break;
         case 6://scoreboard
 
-        case 7://exit
             break;
+        case 7: //exit
+            exit(10);
     }
     fclose(fkeshti1);
     fclose(fkeshti2);
     fclose(fuser);
     fclose(fsave);
-    exit(10);
+    goto lab8;
 }
