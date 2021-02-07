@@ -673,8 +673,8 @@ void update_user(FILE *fuser,player *bazikon){/// مشکل دارد
 
 int compare(void*i1,void*i2){
     player a= *((player*)i1);
-    player b= *((player*)i1);
-    return a.seke>b.seke?1:(a.seke==b.seke)?0:-1;
+    player b= *((player*)i2);
+    return a.seke>b.seke?-1:(a.seke==b.seke)?0:1;
 }
 
 void score_board(FILE*fuser){
@@ -686,7 +686,7 @@ void score_board(FILE*fuser){
         a[i]=temp;
         i++;
     }
-    qsort(a,i-1,sizeof(player),compare);
+    qsort(a,i,sizeof(player),compare);
     printf("   %-30s %s\n","USER","SEKE");
     for (int j = 0; j <i ; j++) {
         printf("%d) %-30s %d\n",j+1,a[j].user,a[j].seke);
