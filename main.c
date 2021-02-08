@@ -71,8 +71,6 @@ keshti *create_keshti(int size){
 
 
 
-
-
 void sakhte_keshtiha(player*bazikon){
     bazikon->head=create_keshti(1);
     keshti *temp;
@@ -575,7 +573,7 @@ mokhtasat entekhab_khane_bot(){
 int game_loop_bot(player**bazikon1,player**bazikon2){
     player **bazikon,**harif;
     int satr,soton;
-    while ((*bazikon1)->head!=NULL && (*bazikon2)->head!=NULL) {
+    while ((*bazikon1)->head != NULL && (*bazikon2)->head != NULL) {
         if (nobat % 2 == 0) {
             bazikon = bazikon1;
             harif = bazikon2;
@@ -679,10 +677,11 @@ save entekhab_bazi(FILE*fsave,int n){
 void save_linked_list(FILE*fkeshti1,player bazikon1){
     keshti a;
     a.size=0;
-    keshti *curr1=bazikon1.head;
+    keshti *curr1 = bazikon1.head;
+    fseek(fkeshti1,0,SEEK_END);
     fwrite(&a,sizeof(keshti),1,fkeshti1);
     while (curr1!=NULL){
-        a=*curr1;
+        a = *curr1;
         fwrite(&a,sizeof(keshti),1,fkeshti1);
         curr1=curr1->next;
     }
@@ -790,7 +789,6 @@ void sakhte_bot(FILE*fbot,FILE*fkeshti_bot){
 
 int main() {
     lab:  ;
-
     FILE *fuser=fopen("user.bin","a+b");
     FILE *fsave=fopen("save.bin","a+b");
     FILE *fsave_tamam=fopen("save tamam.bin","a+b");
@@ -810,6 +808,7 @@ int main() {
             save_bazi.vaziyat_bazi=gameloop(&player11,&player22);
             if (save_bazi.vaziyat_bazi == 10){
                 save_kardan(fsave,player1,player2);
+                fseek(fkeshti2,0,SEEK_END);
                 save_linked_list(fkeshti1,player1);
                 save_linked_list(fkeshti2,player2);
             }
@@ -908,7 +907,7 @@ int main() {
             else {
                 save_bazi.vaziyat_bazi = gameloop(&player11_load, &player22_load);
             }
-            if (save_bazi.vaziyat_bazi==10){
+            if (save_bazi.vaziyat_bazi == 10){
                 save_kardan(fsave,player1_load,player2_load);
                 save_linked_list(fkeshti1,player1_load);
                 save_linked_list(fkeshti2,player2_load);
@@ -934,6 +933,11 @@ int main() {
             break;
         case 7: //exit
             exit(10);
+        case 8:
+            print_file(fkeshti1);
+            printf("\n\n\n");
+            print_file(fkeshti2);
+            printf("\n\n\n");
     }
     fclose(fkeshti_bot);
     fclose(fbot);
