@@ -7,8 +7,6 @@
 #define MAX_PLAYER 1000
 #define NAGHSHE 10
 #define MAX_SIZE_KASHTI 5
-//یک تابع برای اینکه در پایان هر بازی تعداد سکه های هر یوزر را اپدیت کند میخواهیم.
-//که نیازمند یک تابع است که در فایل یوزر ها جست و جو کند
 
 typedef struct {
     int satr,soton;
@@ -42,15 +40,17 @@ typedef struct {
     keshti *head2;
 }save_keshti;
 
-save save_bazi;
+
 
 void show11();
 void delete_linked_list(player**harif,player *bazikon,int adad_delete);
 void print_linked_list(player bazikon);
-int nobat;
 
+int nobat;
+save save_bazi;
 player player1;
 player player2;
+player bot;
 player player1_load;
 player player2_load;
 
@@ -348,7 +348,7 @@ bool search(FILE *user,char *new){
     rewind(user);
     player temp;
     while (fread(&temp,sizeof(player),1,user)>0){
-        if (strcmp(temp.user,new)==0){return false;}
+        if (strcmp(temp.user,new)==0 || strcmp(new,"BOT")==0){return false;}
     }
     return true;
 }//جست و جو در بین یوزر ها
@@ -417,8 +417,10 @@ void play_with_friend(FILE*user){
 
 void print_player(player bazikon){//برای دیباگ کردن
     puts(bazikon.user);
-    printf("%d",bazikon.seke);
+    printf("%d\n",bazikon.seke);
+    printf("naghshe 0:\n");
     print_naghshe(bazikon.naghshe,0);
+    printf("naghshe 1:\n");
     print_naghshe(bazikon.naghshe,1);
     print_linked_list(bazikon);
 
@@ -561,6 +563,80 @@ int gameloop(player **bazikon1,player **bazikon2){//وضعیت بازی را ن�
     }
 }
 
+mokhtasat entekhab_khane_bot(){
+    mokhtasat a;
+    time_t t = time(NULL);
+    srand(t);
+    a.satr=rand()%10;
+    a.soton=rand()%10;
+    return a;
+}
+
+int game_loop_bot(player**bazikon1,player**bazikon2){
+    player **bazikon,**harif;
+    int satr,soton;
+    while ((*bazikon1)->head!=NULL && (*bazikon2)->head!=NULL) {
+        if (nobat % 2 == 0) {
+            bazikon = bazikon1;
+            harif = bazikon2;
+        }
+        else {
+            bazikon = bazikon2;
+            harif = bazikon1;
+        }
+        if (strcmp((*bazikon)->user,"BOT")==0){
+            lab8: ;
+            mokhtasat hadaf;
+            hadaf=entekhab_khane_bot();
+            if (dorost_bodan_khone_entekhabi(**harif,hadaf.satr,hadaf.soton) == false){
+                goto lab8;
+            }
+            if (emal_taghir_dar_khane_entekhab_shode(*harif,hadaf.satr,hadaf.soton) == false){nobat++;}
+            gharar_dadan_C_ha(harif,*bazikon);
+            ghara_dadan_W_dar_naghshe_harif(*harif);
+            printf("entekhab bot: \n");
+            print_naghshe((*harif)->naghshe,1);
+            system("pause");
+        }
+        else{
+            lab9:
+            printf("*** BARAYE KHOROJ AZ BAZI -1 RA DAR SATR YA SOTON VARED KONID ***\n");
+            print_naghshe((*harif)->naghshe,1);
+            printf("user %s khanei ra entekhab konid :\n",(*bazikon)->user);
+            printf("\tsatr: ");
+            scanf("%d",&satr);
+            getchar();
+            if (satr==-1){return 10;}//ناتمام
+            printf("\tsoton: ");
+            scanf("%d",&soton);
+            getchar();
+            if (soton==-1){return 10;}//ناتمام
+            if (dorost_bodan_khone_entekhabi(**harif,satr,soton)==false){
+                printf("khone entekhab shode mojaz nist.\n"
+                       "khane digari ra entekhab konid.\n");
+                goto lab9;
+            }
+            if (emal_taghir_dar_khane_entekhab_shode(*harif,satr,soton) == false){nobat++;}
+            gharar_dadan_C_ha(harif,*bazikon);
+            ghara_dadan_W_dar_naghshe_harif(*harif);
+            print_naghshe((*harif)->naghshe,1);
+        }
+    }
+    if ((*bazikon1)->head!=NULL){
+        printf("%s barande shod!!!!!!\n"
+               "tabrik.\n",(*bazikon1)->user);
+        (*bazikon2)->seke=(*bazikon2)->seke/2;
+        return 1;//پلیر 1 برده است
+    }
+    else{
+        printf("%s barande shod!!!!!!\n"
+               "tabrik.\n",(*bazikon2)->user);
+        (*bazikon1)->seke=(*bazikon1)->seke/2;
+        return 2;//پلیر 2 (bot)برده است
+    }
+}
+
+
 void print_game_list(save bazi){
     printf("player1: %s\tplayer2: %s\t TIME:%s \t DATE:%s\n",bazi.bazikon1.user,bazi.bazikon2.user,bazi.saat,bazi.tarikh);
     if (bazi.vaziyat_bazi != 10){
@@ -691,7 +767,26 @@ void score_board(FILE*fuser){
     for (int j = 0; j <i ; j++) {
         printf("%d) %-30s %d\n",j+1,a[j].user,a[j].seke);
     }
+    printf("\n\n\n\n");
 }
+
+void load_bot(FILE*fbot,FILE*fkeshti_bot){
+    fread(&bot,sizeof(player),1,fbot);
+    match_kardan_linkedlist_az_file(fkeshti_bot,&bot,1);
+}
+
+void sakhte_bot(FILE*fbot,FILE*fkeshti_bot){
+    fbot=fopen("bot.bin","r+b");
+    fkeshti_bot=fopen("fkeshti bot.bin","r+b");
+    strcpy(bot.user,"BOT");
+    bot.seke=0;
+    create_board(&bot);
+    sakhte_keshtiha(&bot);
+    put_ships(&bot);
+    fwrite(&bot,sizeof(player),1,fbot);
+    save_linked_list(fkeshti_bot,bot);
+}//بات را درست میکنه و در فایل ذخیره میکند تا در بازی با بات از آن استفاده کند.
+//کاربر نیازی به این تابع ندارد.
 
 int main() {
     lab:  ;
@@ -701,6 +796,8 @@ int main() {
     FILE *fsave_tamam=fopen("save tamam.bin","a+b");
     FILE *fkeshti1=fopen("fkeshti1.bin","a+b");
     FILE *fkeshti2=fopen("fkeshti2.bin","a+b");
+    FILE *fbot=fopen("bot.bin","r+b");
+    FILE *fkeshti_bot=fopen("fkeshti bot.bin","r+b");
     show();
     int adad_switch;
     int adad_akharin_bazi;
@@ -718,17 +815,33 @@ int main() {
             }
             else{
                 save_kardan(fsave_tamam,player1,player2);
-                update_user(fuser,&player1_load);
-                update_user(fuser,&player2_load);
+                update_user(fuser,&player1);
+                update_user(fuser,&player2);
                 //اپدیت سکه ها
             }
             break;
         case 2:
-            print_file(fkeshti1);
-            printf("\n");
-            print_file(fkeshti2);
+            load_bot(fbot,fkeshti_bot);
+            player1=chose_user(fuser);
+            create_board(&player1);
+            sakhte_keshtiha(&player1);
+            put_ships(&player1);
+            player *player111=&player1;
+            player *player222=&bot;
+            save_bazi.vaziyat_bazi=game_loop_bot(&player111,&player222);
+            if (save_bazi.vaziyat_bazi == 10){
+                save_kardan(fsave,player1,bot);
+                save_linked_list(fkeshti1,player1);
+                save_linked_list(fkeshti2,bot);
+            }
+            else{
+                save_kardan(fsave_tamam,player1,player2);
+                update_user(fuser,&player1);
+//                update_user(fuser,&bot);
+                //اپدیت سکه ها
+            }
             break;
-        case 3://  این کیس در مورد شروع بازی مشکل دارد. مشکل از لینک لیست کشتی هاست چون اشره گر را نمیتوان سیو کرد.
+        case 3:
         lab7:
             print_save_file(fsave);
             printf("shomare bazi morede nazar ra vared konid: \n");
@@ -742,7 +855,6 @@ int main() {
             }
             player1_load=save_bazi.bazikon1;
             player2_load=save_bazi.bazikon2;
-
             nobat=save_bazi.nobat;
             match_kardan_linkedlist_az_file(fkeshti1,&player1_load,adad_switch);
             match_kardan_linkedlist_az_file(fkeshti2,&player2_load,adad_switch);
@@ -751,28 +863,34 @@ int main() {
 //            fclose(fsave);
 //            FILE *fsave=fopen("save.bin","a+b");
             fseek(fsave,0,SEEK_END);
-            save_bazi.vaziyat_bazi=gameloop(&player11_load,&player22_load);
-            if (save_bazi.vaziyat_bazi==10){
+            if (strcmp(player2_load.user,"BOT")==0){
+                save_bazi.vaziyat_bazi=game_loop_bot(&player11_load,&player22_load);
+            }
+            else {
+                save_bazi.vaziyat_bazi = gameloop(&player11_load, &player22_load);
+            }
+            if (save_bazi.vaziyat_bazi == 10){
                 save_kardan(fsave,player1_load,player2_load);
                 save_linked_list(fkeshti1,player1_load);
                 save_linked_list(fkeshti2,player2_load);
-
             }
             else{
                 save_kardan(fsave_tamam,player1_load,player2_load);
                 update_user(fuser,&player1_load);
-                update_user(fuser,&player2_load);
+                if (strcmp(player2_load.user,"BOT")!=0) {
+                    update_user(fuser, &player2_load);
+                }
                //اپدیته سکه ها
             }
             break;
         case 4://load last game
             adad_akharin_bazi=print_save_file(fsave);
             save_bazi=entekhab_bazi(fsave,adad_akharin_bazi);
-            if (save_bazi.vaziyat_bazi!=10){
-                printf("in bazi be payan reside ast.\n"
-                       "bazi digari ra entekhab konid.\n");
-                goto lab7;
-            }
+//            if (save_bazi.vaziyat_bazi!=10){
+//                printf("in bazi be payan reside ast.\n"
+//                       "bazi digari ra entekhab konid.\n");
+//                goto lab7;
+//            }
             player1_load=save_bazi.bazikon1;
             player2_load=save_bazi.bazikon2;
             nobat=save_bazi.nobat;
@@ -784,7 +902,12 @@ int main() {
 //            fclose(fsave);
 //            FILE *fsave=fopen("save.bin","a+b");
             fseek(fsave,0,SEEK_END);
-            save_bazi.vaziyat_bazi=gameloop(&player11_load,&player22_load);
+            if (strcmp(player2_load.user,"BOT")==0){
+                save_bazi.vaziyat_bazi=game_loop_bot(&player11_load,&player22_load);
+            }
+            else {
+                save_bazi.vaziyat_bazi = gameloop(&player11_load, &player22_load);
+            }
             if (save_bazi.vaziyat_bazi==10){
                 save_kardan(fsave,player1_load,player2_load);
                 save_linked_list(fkeshti1,player1_load);
@@ -793,7 +916,10 @@ int main() {
             else{
                 save_kardan(fsave_tamam,player1_load,player2_load);
                 update_user(fuser,&player1_load);
-                update_user(fuser,&player2_load);
+
+                if (strcmp(player2_load.user,"BOT")!=0) {
+                    update_user(fuser, &player2_load);
+                }
                 //اپدیته سکه ها
             }
             break;
@@ -804,10 +930,13 @@ int main() {
             score_board(fuser);
             printf("tarikhche bazihaye tamam shode: \n");
             print_save_file(fsave_tamam);
+            printf("\n\n\n\n");
             break;
         case 7: //exit
             exit(10);
     }
+    fclose(fkeshti_bot);
+    fclose(fbot);
     fclose(fkeshti1);
     fclose(fkeshti2);
     fclose(fsave_tamam);
