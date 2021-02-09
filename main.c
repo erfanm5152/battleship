@@ -45,7 +45,7 @@ typedef struct {
 void show11();
 void delete_linked_list(player**harif,player *bazikon,int adad_delete);
 void print_linked_list(player bazikon);
-
+///global متغیر های
 int nobat;
 save save_bazi;
 player player1;
@@ -168,6 +168,7 @@ void put_ships(player*bazikon){
     show11();
     int adad_switch;
     scanf("%d",&adad_switch);
+    system("cls");
     getchar();
     keshti *curr=bazikon->head;
     int satr_ebteda,soton_ebteda,soton_enteha,satr_enteha;
@@ -184,6 +185,7 @@ void put_ships(player*bazikon){
                 getchar();
                 printf("\tsoton: ");
                 scanf("%d",&soton_ebteda);
+                system("cls");
                 getchar();
                 if (ghabel_jaygozari_bodan_kashtiha(bazikon,satr_ebteda,soton_ebteda,satr_enteha,soton_enteha,1)){
                     bazikon->naghshe[satr_ebteda][soton_ebteda][0]='K';
@@ -193,6 +195,7 @@ void put_ships(player*bazikon){
                     gharar_dadan_w_atraf_keshtiha(bazikon);
                 }
                 else{
+                    system("cls");
                     printf("in mahal ghabel jay gozari nist.\n");
                     goto lab1;
                 }
@@ -213,6 +216,7 @@ void put_ships(player*bazikon){
                 printf("\tsoton enteha: ");
                 scanf("%d",&soton_enteha);
                 getchar();
+                system("cls");
                 if (ghabel_jaygozari_bodan_kashtiha(bazikon,satr_ebteda,soton_ebteda,satr_enteha,soton_enteha,2)){
                     bazikon->naghshe[satr_ebteda][soton_ebteda][0]='K';
                     bazikon->naghshe[satr_enteha][soton_enteha][0]='K';
@@ -225,6 +229,7 @@ void put_ships(player*bazikon){
                     gharar_dadan_w_atraf_keshtiha(bazikon);
                 }
                 else{
+                    system("cls");
                     printf("in mahal ghabel jay gozari nist.\n");
                     goto lab2;
                 }
@@ -245,6 +250,7 @@ void put_ships(player*bazikon){
                 printf("\tsoton enteha: ");
                 scanf("%d",&soton_enteha);
                 getchar();
+                system("cls");
                 if (ghabel_jaygozari_bodan_kashtiha(bazikon,satr_ebteda,soton_ebteda,satr_enteha,soton_enteha,3)){
                     int j=0;
                     if (satr_enteha == satr_ebteda){
@@ -265,6 +271,7 @@ void put_ships(player*bazikon){
                     gharar_dadan_w_atraf_keshtiha(bazikon);
                 }
                 else{
+                    system("cls");
                     printf("in mahal ghabel jay gozari nist.\n");
                     goto lab3;
                 }
@@ -285,6 +292,7 @@ void put_ships(player*bazikon){
                 printf("\tsoton enteha: ");
                 scanf("%d",&soton_enteha);
                 getchar();
+                system("cls");
                 if (ghabel_jaygozari_bodan_kashtiha(bazikon,satr_ebteda,soton_ebteda,satr_enteha,soton_enteha,5)){
                     int j=0;
                     if (satr_enteha==satr_ebteda){
@@ -306,6 +314,7 @@ void put_ships(player*bazikon){
                     gharar_dadan_w_atraf_keshtiha(bazikon);
                 }
                 else{
+                    system("cls");
                     printf("in mahal ghabel jay gozari nist.\n");
                     goto lab4;
                 }
@@ -357,6 +366,7 @@ player chose_user(FILE *user){
     lab1:
     show1();
     scanf("%d",&adad_switch);
+    system("cls");
     getchar();
     switch (adad_switch) {
         case 1:
@@ -369,6 +379,7 @@ player chose_user(FILE *user){
             }
             printf("adad user mored nadzar ra entekhab konid : \n");
             scanf("%d",&adad_switch);
+            system("cls");
             fseek(user,(adad_switch-1)*sizeof(player),SEEK_SET);
             fread(&natige,sizeof(player),1,user);
             return natige;
@@ -383,6 +394,7 @@ player chose_user(FILE *user){
                 strcpy(new.user,new_user);
                 new.seke=0;
                 fwrite(&new,sizeof(player),1,user);
+                system("cls");
                 return new;
             }
             else{
@@ -399,6 +411,9 @@ void play_with_friend(FILE*user){
     sakhte_keshtiha(&player1);
     put_ships(&player1);
     print_naghshe(player1.naghshe,0);
+    printf("naghshe player1: %s\n",player1.user);
+    system("pause");
+    system("cls");
     printf("second player:\n");
     lab5:
     player2=chose_user(user);
@@ -411,6 +426,9 @@ void play_with_friend(FILE*user){
     sakhte_keshtiha(&player2);
     put_ships(&player2);
     print_naghshe(player2.naghshe,0);
+    printf("naghshe player2: %s\n",player2.user);
+    system("pause");
+    system("cls");
 }//برای ایجاد player1 و player2  در بازی دو نفره
 
 void print_player(player bazikon){//برای دیباگ کردن
@@ -517,6 +535,7 @@ bool emal_taghir_dar_khane_entekhab_shode(player*harif ,int satr,int soton){//د
 int gameloop(player **bazikon1,player **bazikon2){//وضعیت بازی را نشان میدهد.
     player **bazikon,**harif;
     int satr,soton;
+    bool a;
     while ((*bazikon1)->head!=NULL && (*bazikon2)->head!=NULL) {
         if (nobat % 2 == 0) {
             bazikon = bazikon1;
@@ -526,6 +545,7 @@ int gameloop(player **bazikon1,player **bazikon2){//وضعیت بازی را ن�
             harif = bazikon1;
         }
         lab6:
+        system("cls");
         printf("*** BARAYE KHOROJ AZ BAZI -1 RA DAR SATR YA SOTON VARED KONID ***\n");
         print_naghshe((*harif)->naghshe,1);
         printf("user %s khanei ra entekhab konid :\n",(*bazikon)->user);
@@ -540,23 +560,32 @@ int gameloop(player **bazikon1,player **bazikon2){//وضعیت بازی را ن�
         if (dorost_bodan_khone_entekhabi(**harif,satr,soton)==false){
             printf("khone entekhab shode mojaz nist.\n"
                    "khane digari ra entekhab konid.\n");
+            system("pause");//برای نمایش درست
             goto lab6;
         }
-        if (emal_taghir_dar_khane_entekhab_shode(*harif,satr,soton) == false){nobat++;}
+        if ((a=emal_taghir_dar_khane_entekhab_shode(*harif,satr,soton)) == false){nobat++;}
         gharar_dadan_C_ha(harif,*bazikon);
         ghara_dadan_W_dar_naghshe_harif(*harif);
         print_naghshe((*harif)->naghshe,1);
+        if (a==false){
+            system("cls");
+            print_naghshe((*harif)->naghshe,1);
+            system("pause");
+        }//برای نمایش
     }
+    system("cls");
     if ((*bazikon1)->head!=NULL){
         printf("%s barande shod!!!!!!\n"
                "tabrik.\n",(*bazikon1)->user);
         (*bazikon2)->seke=(*bazikon2)->seke/2;
+        system("pause");
         return 1;//پلیر 1 برده است
     }
     else{
         printf("%s barande shod!!!!!!\n"
                "tabrik.\n",(*bazikon2)->user);
         (*bazikon1)->seke=(*bazikon1)->seke/2;
+        system("pause");
         return 2;//پلیر 2 برده است
     }
 }
@@ -572,6 +601,8 @@ mokhtasat entekhab_khane_bot(){
 
 int game_loop_bot(player**bazikon1,player**bazikon2){
     player **bazikon,**harif;
+    bool a;
+    system("cls");
     int satr,soton;
     while ((*bazikon1)->head != NULL && (*bazikon2)->head != NULL) {
         if (nobat % 2 == 0) {
@@ -592,12 +623,14 @@ int game_loop_bot(player**bazikon1,player**bazikon2){
             if (emal_taghir_dar_khane_entekhab_shode(*harif,hadaf.satr,hadaf.soton) == false){nobat++;}
             gharar_dadan_C_ha(harif,*bazikon);
             ghara_dadan_W_dar_naghshe_harif(*harif);
+            system("cls");
             printf("entekhab bot: \n");
             print_naghshe((*harif)->naghshe,1);
             system("pause");
         }
         else{
             lab9:
+            system("cls");
             printf("*** BARAYE KHOROJ AZ BAZI -1 RA DAR SATR YA SOTON VARED KONID ***\n");
             print_naghshe((*harif)->naghshe,1);
             printf("user %s khanei ra entekhab konid :\n",(*bazikon)->user);
@@ -612,24 +645,33 @@ int game_loop_bot(player**bazikon1,player**bazikon2){
             if (dorost_bodan_khone_entekhabi(**harif,satr,soton)==false){
                 printf("khone entekhab shode mojaz nist.\n"
                        "khane digari ra entekhab konid.\n");
+                system("pause");
                 goto lab9;
             }
-            if (emal_taghir_dar_khane_entekhab_shode(*harif,satr,soton) == false){nobat++;}
+            if ((a=emal_taghir_dar_khane_entekhab_shode(*harif,satr,soton)) == false){nobat++;}
             gharar_dadan_C_ha(harif,*bazikon);
             ghara_dadan_W_dar_naghshe_harif(*harif);
             print_naghshe((*harif)->naghshe,1);
+            if (a==false){
+                system("cls");
+                print_naghshe((*harif)->naghshe,1);
+                system("pause");
+            }//برای نمایش
         }
     }
+    system("cls");
     if ((*bazikon1)->head!=NULL){
         printf("%s barande shod!!!!!!\n"
                "tabrik.\n",(*bazikon1)->user);
         (*bazikon2)->seke=(*bazikon2)->seke/2;
+        system("pause");
         return 1;//پلیر 1 برده است
     }
     else{
         printf("%s barande shod!!!!!!\n"
                "tabrik.\n",(*bazikon2)->user);
         (*bazikon1)->seke=(*bazikon1)->seke/2;
+        system("pause");
         return 2;//پلیر 2 (bot)برده است
     }
 }
@@ -789,6 +831,7 @@ void sakhte_bot(FILE*fbot,FILE*fkeshti_bot){
 
 int main() {
     lab:  ;
+    system("cls");
     FILE *fuser=fopen("user.bin","a+b");
     FILE *fsave=fopen("save.bin","a+b");
     FILE *fsave_tamam=fopen("save tamam.bin","a+b");
@@ -800,6 +843,7 @@ int main() {
     int adad_switch;
     int adad_akharin_bazi;
     scanf("%d",&adad_switch);
+    system("cls");
     switch (adad_switch) {
         case 1:
             play_with_friend(fuser);
@@ -924,20 +968,18 @@ int main() {
             break;
         case 5://setting
             show5();
+            system("pause");
             break;
         case 6://scoreboard
             score_board(fuser);
             printf("tarikhche bazihaye tamam shode: \n");
             print_save_file(fsave_tamam);
             printf("\n\n\n\n");
+            system("pause");
             break;
         case 7: //exit
             exit(10);
-        case 8:
-            print_file(fkeshti1);
-            printf("\n\n\n");
-            print_file(fkeshti2);
-            printf("\n\n\n");
+
     }
     fclose(fkeshti_bot);
     fclose(fbot);
