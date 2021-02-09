@@ -35,10 +35,6 @@ typedef struct {
     int vaziyat_bazi;
 }save;
 
-typedef struct {
-    keshti *head1;
-    keshti *head2;
-}save_keshti;
 
 
 
@@ -56,6 +52,7 @@ player player2_load;
 
 keshti *create_keshti(int size){
     keshti *temp=(keshti*)malloc(sizeof(keshti));
+    if (temp==NULL){exit(-100);}
     temp->size=size;
     temp->k->satr=-1;
     temp->k->soton=-1;
@@ -377,8 +374,9 @@ player chose_user(FILE *user){
                 printf("%d)%-30s %d\n", i, temp.user,temp.seke);
                 i++;
             }
-            printf("adad user mored nadzar ra entekhab konid : \n");
+            printf("adad user mored nadzar ra entekhab konid (baraye bargasht -1 ): \n");
             scanf("%d",&adad_switch);
+            if (adad_switch==-1){ goto lab1;}
             system("cls");
             fseek(user,(adad_switch-1)*sizeof(player),SEEK_SET);
             fread(&natige,sizeof(player),1,user);
@@ -444,7 +442,7 @@ void print_player(player bazikon){//برای دیباگ کردن
 
 bool dorost_bodan_khone_entekhabi(player harif,int satr,int soton){
     if (satr>9||satr<0||soton>9||soton<0){return false;}
-    if (harif.naghshe[satr][soton][1]=='S' || harif.naghshe[satr][soton][1]=='C'|| harif.naghshe[satr][soton][1]=='W'){return false;}
+    if (harif.naghshe[satr][soton][1]=='S' || harif.naghshe[satr][soton][1]=='C'|| harif.naghshe[satr][soton][1]=='W'||harif.naghshe[satr][soton][1]=='x'){return false;}
     return true;
 }
 void ghara_dadan_W_dar_naghshe_harif(player*harif){
@@ -768,6 +766,7 @@ void save_kardan(FILE*fsave,player bazikon1,player bazikon2){
     save_bazi.nobat=nobat;
     strcpy(save_bazi.saat,__TIME__);
     strcpy(save_bazi.tarikh,__DATE__);
+    fseek(fsave,0,SEEK_END);
     fwrite(&save_bazi,sizeof(save),1,fsave);
 }
 
@@ -775,6 +774,7 @@ void update_user(FILE *fuser,player *bazikon){/// مشکل دارد
     player temp;
     fclose(fuser);
     fuser=fopen("user.bin","r+b");
+    if (fuser==NULL){exit(-100);}
     int i=0;
     fread(&temp,sizeof(temp),1,fuser);
     while (strcmp(temp.user,bazikon->user)!=0){
@@ -819,6 +819,7 @@ void load_bot(FILE*fbot,FILE*fkeshti_bot){
 void sakhte_bot(FILE*fbot,FILE*fkeshti_bot){
     fbot=fopen("bot.bin","r+b");
     fkeshti_bot=fopen("fkeshti bot.bin","r+b");
+    if (fkeshti_bot==NULL||fbot==NULL){exit(-100);}
     strcpy(bot.user,"BOT");
     bot.seke=0;
     create_board(&bot);
@@ -839,7 +840,9 @@ int main() {
     FILE *fkeshti2=fopen("fkeshti2.bin","a+b");
     FILE *fbot=fopen("bot.bin","r+b");
     FILE *fkeshti_bot=fopen("fkeshti bot.bin","r+b");
+    if (fuser==NULL||fsave==NULL||fsave_tamam==NULL||fkeshti1==NULL||fkeshti2==NULL||fbot==NULL||fkeshti_bot==NULL){exit(-100);}
     show();
+    save a;//برای چک کردن خالی بودن فایل save
     int adad_switch;
     int adad_akharin_bazi;
     scanf("%d",&adad_switch);
@@ -886,9 +889,15 @@ int main() {
             break;
         case 3:
         lab7:
+            if (fread(&a,sizeof(save),1,fsave)<1){
+                printf("savei vojod nadarad.\n");
+                system("pause");
+                goto lab;
+            }
             print_save_file(fsave);
-            printf("shomare bazi morede nazar ra vared konid: \n");
+            printf("shomare bazi morede nazar ra vared konid(baraye bargasht -1 ra vared konid): \n");
             scanf("%d",&adad_switch);
+            if (adad_switch==-1){ goto lab;}
             fflush(stdin);
             save_bazi=entekhab_bazi(fsave,adad_switch);
             if (save_bazi.vaziyat_bazi!=10){
@@ -923,10 +932,15 @@ int main() {
                 if (strcmp(player2_load.user,"BOT")!=0) {
                     update_user(fuser, &player2_load);
                 }
-               //اپدیته سکه ها
+                //اپدیته سکه ها
             }
             break;
         case 4://load last game
+            if (fread(&a,sizeof(save),1,fsave)<1){
+                printf("savei vojod nadarad.\n");
+                system("pause");
+                goto lab;
+            }
             adad_akharin_bazi=print_save_file(fsave);
             save_bazi=entekhab_bazi(fsave,adad_akharin_bazi);
 //            if (save_bazi.vaziyat_bazi!=10){
