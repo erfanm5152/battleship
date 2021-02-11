@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
-
 #define MAX_USER 100
 #define MAX_PLAYER 1000
 #define NAGHSHE 10
@@ -37,11 +36,11 @@ typedef struct {
 }save;
 
 
+
+
 void show11();
 void delete_linked_list(player**harif,player *bazikon,int adad_delete);
 void print_linked_list(player bazikon);
-
-
 ///global متغیر های
 int nobat;
 save save_bazi;
@@ -64,7 +63,7 @@ keshti *create_keshti(int size){
     temp->khod_kashti[i]='\0';
     temp->next=NULL;
     return temp;
-}//برای ساخت node های لینک لیست کشتی
+}
 
 
 
@@ -223,7 +222,7 @@ void put_ships(player*bazikon){
                     curr->k[1].soton=soton_enteha;
                     curr->k[1].satr=satr_enteha;
                     curr=curr->next;
-
+                    // وصل کردن کشتی به لینک لیست اضافه شود
                     gharar_dadan_w_atraf_keshtiha(bazikon);
                 }
                 else{
@@ -339,7 +338,7 @@ void show1(){
 }//منو گزینه یک
 void show11(){
     printf("2. put ships\n"
-           "\t1. Auto ---->kar nemikonad\n"
+           "\t1. Auto\n"
            "\t2. Manual\n");
 }//ادامه منو
 void show5(){
@@ -377,7 +376,7 @@ player chose_user(FILE *user){
             }
             printf("adad user mored nadzar ra entekhab konid (baraye bargasht -1 ): \n");
             scanf("%d",&adad_switch);
-            if (adad_switch==-1){ goto lab1;}//برای بازگشت به عقب و ساخت پلیر جدید
+            if (adad_switch==-1){ goto lab1;}
             system("cls");
             fseek(user,(adad_switch-1)*sizeof(player),SEEK_SET);
             fread(&natige,sizeof(player),1,user);
@@ -759,7 +758,7 @@ void print_file(FILE*fkeshti){
         }
         printf("\n");
     }
-}///برای دیباگ کردن
+}
 
 void save_kardan(FILE*fsave,player bazikon1,player bazikon2){
     save_bazi.bazikon1=bazikon1;
@@ -831,13 +830,7 @@ void sakhte_bot(FILE*fbot,FILE*fkeshti_bot){
 }//بات را درست میکنه و در فایل ذخیره میکند تا در بازی با بات از آن استفاده کند.
 //کاربر نیازی به این تابع ندارد.
 
-void goodbye(void ){
-    printf("\n good bye :) \n\n");
-    system("pause");
-}
-
 int main() {
-    atexit(goodbye);
     lab:  ;
     system("cls");
     FILE *fuser=fopen("user.bin","a+b");
@@ -859,10 +852,12 @@ int main() {
             play_with_friend(fuser);
             player *player11=&player1;
             player *player22=&player2;
+            player1.seke=0;
+            player2.seke=0;
             save_bazi.vaziyat_bazi=gameloop(&player11,&player22);
             if (save_bazi.vaziyat_bazi == 10){
                 save_kardan(fsave,player1,player2);
-                fseek(fkeshti2,0,SEEK_END);// تو تابع save linked list اومده نیازی بهش نیس
+                fseek(fkeshti2,0,SEEK_END);
                 save_linked_list(fkeshti1,player1);
                 save_linked_list(fkeshti2,player2);
             }
@@ -876,6 +871,7 @@ int main() {
         case 2:
             load_bot(fbot,fkeshti_bot);
             player1=chose_user(fuser);
+            player1.seke=0;
             create_board(&player1);
             sakhte_keshtiha(&player1);
             put_ships(&player1);
